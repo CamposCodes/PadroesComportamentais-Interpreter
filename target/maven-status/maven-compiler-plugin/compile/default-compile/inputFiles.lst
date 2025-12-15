@@ -1,0 +1,11 @@
+/workspaces/PadroesComportamentais-Interpreter/src/main/java/padroescomportamentais/interpreter/ItemExpressao.java
+/workspaces/PadroesComportamentais-Interpreter/src/main/java/padroescomportamentais/interpreter/InterpretadorExpressao.java
+/workspaces/PadroesComportamentais-Interpreter/src/main/java/padroescomportamentais/interpreter/DivisaoExpressao.java
+/workspaces/PadroesComportamentais-Interpreter/src/main/java/padroescomportamentais/interpreter/Pedido.java
+/workspaces/PadroesComportamentais-Interpreter/src/main/java/padroescomportamentais/interpreter/OperacaoBinariaExpressao.java
+/workspaces/PadroesComportamentais-Interpreter/src/main/java/padroescomportamentais/interpreter/SomaExpressao.java
+/workspaces/PadroesComportamentais-Interpreter/src/main/java/padroescomportamentais/interpreter/MultiplicacaoExpressao.java
+/workspaces/PadroesComportamentais-Interpreter/src/main/java/padroescomportamentais/interpreter/InterpretadorExpressoesCafeBar.java
+/workspaces/PadroesComportamentais-Interpreter/src/main/java/padroescomportamentais/interpreter/Expressao.java
+/workspaces/PadroesComportamentais-Interpreter/src/main/java/padroescomportamentais/interpreter/SubtracaoExpressao.java
+/workspaces/PadroesComportamentais-Interpreter/src/main/java/padroescomportamentais/interpreter/NumeroExpressao.java

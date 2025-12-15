@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Padrão Interpreter — Demonstração</title>
+    <style>
+        :root{--bg:#f6f8fa;--surface:#ffffff;--muted:#6a737d;--border:#e1e4e8;--accent:#0366d6;--success:#28a745;--warning:#ffc107;--danger:#d73a49;--shadow:0 1px 2px rgba(27,31,35,.04),0 8px 24px rgba(27,31,35,.08)}
+        html,body{height:100%}
+        body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial;background:var(--bg);color:#24292e;-webkit-font-smoothing:antialiased}
+        .container{max-width:1100px;margin:24px auto;padding:0 20px}
+        h1{font-size:1.6rem;margin:0 0 14px;color:#0b2d4a}
+        h2{font-size:1.05rem;margin:0 0 12px}
+        p{margin:0 0 12px;font-size:0.95rem;line-height:1.6}
+        .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:20px;box-shadow:var(--shadow)}
+        .controls{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px}
+        input[type=text]{flex:1;padding:8px;border:1px solid var(--border);border-radius:6px}
+        button{padding:8px 12px;border:1px solid var(--border);border-radius:6px;background:var(--surface);cursor:pointer;font-weight:700}
+        button.primary{background:var(--accent);color:#fff;border-color:transparent}
+        .row{display:grid;grid-template-columns:1fr 420px;gap:18px}
+        .muted{color:var(--muted)}
+        .code{background:#f6f8fa;border-left:3px solid var(--border);padding:10px;border-radius:6px;font-family:monospace;font-size:0.85rem;white-space:pre-wrap}
+        .result{background:linear-gradient(180deg,#f0f9ff,#e6f4ff);border:2px solid var(--accent);padding:12px;border-radius:6px;text-align:center}
+        .metrics{display:flex;gap:12px;margin-top:12px}
+        .metric{flex:1;background:#fff;border:1px solid var(--border);padding:10px;border-radius:6px;text-align:center}
+        .metric .v{font-weight:800;color:var(--accent);font-size:1.2rem}
+        .examples{display:flex;gap:8px;flex-wrap:wrap}
+        .chip{padding:6px 10px;background:#f6f8fa;border-radius:999px;border:1px solid var(--border);cursor:pointer}
+        .explain{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px}
+        @media(max-width:980px){.row{grid-template-columns:1fr}.explain{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <h1>🔍 Padrão Interpreter — Visão e Demonstração</h1>
+            <p class="muted">Esta página mostra como o padrão Interpreter interpreta expressões (numéricas e itens de cardápio) e por que ele é útil no contexto do seu sistema de pedidos.</p>
+            <div class="metrics">
+                <div class="metric"><div class="v">Encapsula</div><div class="muted">Expressões como objetos</div></div>
+                <div class="metric"><div class="v">Reutilizável</div><div class="muted">Fácil extensão de gramáticas</div></div>
+                <div class="metric"><div class="v">Testável</div><div class="muted">Testes unitários claros</div></div>
+            </div>
+        </div>
+
+        <div class="card row">
+            <div>
+                <h2>🧮 Interpretador — Experimente</h2>
+                <p class="muted">Digite uma expressão com números, itens do cardápio (ESPRESSO, LATTE, SANDUICHE, etc.), operadores + - * / e parênteses. Aceita sinais juntos ou separados por espaços.</p>
+
+                <div class="controls">
+                    <input id="expr" type="text" placeholder="Ex.: 2*ESPRESSO + 1*SANDUICHE ou (10 / 2) * 3 + 1 - 4"/>
+                    <button class="primary" onclick="interpretar()">Interpretar</button>
+                    <button onclick="limpar()">Limpar</button>
+                </div>
+
+                <div style="margin-top:12px" class="examples">
+                    <div class="chip" onclick="setExpr('ESPRESSO + LATTE')">ESPRESSO + LATTE</div>
+                    <div class="chip" onclick="setExpr('2*ESPRESSO + 1*SANDUICHE')">2*ESPRESSO + 1*SANDUICHE</div>
+                    <div class="chip" onclick="setExpr('10 / 2 * 3 + 1 - 4')">10 / 2 * 3 + 1 - 4</div>
+                    <div class="chip" onclick="setExpr('6 / 0')">6 / 0 (erro)</div>
+                    <div class="chip" onclick="setExpr('2 ^ 2')">2 ^ 2 (invalido)</div>
+                </div>
+
+                <div style="margin-top:12px" id="steps" class="code">Passos do parser aparecerão aqui...</div>
+            </div>
+
+            <div>
+                <h2>📊 Resultado</h2>
+                <div id="resultBox" class="result">
+                    <div id="resultado" style="font-size:1.4rem;font-weight:800">—</div>
+                    <div id="mensagem" class="muted">Interpretador aguardando entrada</div>
+                </div>
+
+                <div style="margin-top:12px">
+                    <h3>Observação rápida</h3>
+                    <p class="muted">O Interpreter permite isolar a gramática e a avaliação — útil para calcular pedidos, aplicar promoções e validar fórmulas sem poluir lógica de negócio.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>✅ Vantagens do Interpreter no seu sistema</h2>
+            <div class="explain">
+                <div>
+                    <h3>Quando usar</h3>
+                    <ul>
+                        <li>Quando precisa avaliar expressões definidas por usuários (regras, descontos).</li>
+                        <li>Quando gramática cresce — separa parsing da execução.</li>
+                        <li>Testes ficam mais simples: cada nó da árvore é testável.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Benefícios práticos</h3>
+                    <ul>
+                        <li>Permite caching de árvores parseadas para eficiência.</li>
+                        <li>Facilita memoização e otimizações (precompilar expressões).</li>
+                        <li>Diminui bugs por centralizar regras de interpretação.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🧾 Exemplo (implementação em Java)</h2>
+            <div class="code">
+                // Trechos do projeto existente
+                Interface: InterpretadorExpressao { double interpretar(); }
+
+                Classe: InterpretadorExpressoesCafeBar
+                - Tokenize
+                - Converter para RPN (Shunting-yard)
+                - Montar árvore de Expressao
+                - Avaliar
+
+                Classe: Pedido monta expressao como "2 * ESPRESSO + 1 * SANDUICHE" e usa o interpretador
+            </div>
+            <p class="muted">Esse isolamento permite trocar a gramática sem alterar `Pedido` ou regras de negócio.</p>
+        </div>
+
+        <div class="card">
+            <h2>⚖️ Comparação: Com vs Sem Interpreter</h2>
+            <div class="explain">
+                <div>
+                    <h3>Sem Interpreter</h3>
+                    <div class="code">// Lógica misturada
+if (token.equals("ESPRESSO")) total += 3.0;
+else if (token.equals("LATTE")) total += 4.0; // espalhado por várias partes</div>
+                </div>
+                <div>
+                    <h3>Com Interpreter</h3>
+                    <div class="code">// Gramática e avaliação centralizadas
+Expressao raiz = interpretador.parse(expr);
+double total = raiz.interpretar();</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>🔬 Experimentação</h2>
+            <p class="muted">Abaixo há logs detalhados do parser; mensagens de erro seguem o mesmo padrão das exceções Java usadas no projeto.</p>
+            <div id="log" class="code">Logs aparecerão aqui...</div>
+        </div>
+
+    </div>
+
+    <script>
+        // CARDAPIO (mesmos preços do interpretador Java)
+        const CARDAPIO = {
+            'ESPRESSO': 3.0,
+            'LATTE': 4.0,
+            'CAPPUCCINO': 4.5,
+            'SANDUICHE': 2.0,
+            'PAO': 1.5,
+            'CHA': 2.5,
+            'SUCOS': 3.5
+        };
+
+        function log(msg){ document.getElementById('log').textContent = msg; }
+        function steps(msg){ document.getElementById('steps').textContent = msg; }
+        function setExpr(v){ document.getElementById('expr').value = v }
+        function limpar(){ document.getElementById('expr').value=''; document.getElementById('resultado').textContent='—'; document.getElementById('mensagem').textContent='Interpretador aguardando entrada'; steps(''); log(''); }
+
+        // Preprocess: adiciona espaços ao redor de operadores e parênteses para facilitar tokenização
+        function normalize(s){ return s.replace(/([()+\-*/])/g,' $1 ').replace(/\s+/g,' ').trim(); }
+
+        function isNumber(tok){ return !isNaN(Number(tok)); }
+        function isItem(tok){ return CARDAPIO.hasOwnProperty(tok.toUpperCase()); }
+        function isOperator(tok){ return ['+','-','*','/'].includes(tok); }
+        function precedence(op){ if(op=='*' || op=='/') return 2; if(op=='+'||op=='-') return 1; return 0; }
+
+        // Converte tokens em RPN (shunting-yard)
+        function toRPN(tokens){
+            const out = [];
+            const ops = [];
+            for(const t of tokens){
+                if(isNumber(t) || isItem(t)) out.push(t);
+                else if(isOperator(t)){
+                    while(ops.length && isOperator(ops[ops.length-1]) && precedence(ops[ops.length-1])>=precedence(t)) out.push(ops.pop());
+                    ops.push(t);
+                } else if(t=='(') ops.push(t);
+                else if(t==')'){
+                    let found=false; while(ops.length){ const top=ops.pop(); if(top=='('){ found=true; break; } else out.push(top);} if(!found) throw new Error('Expressão inválida');
+                } else throw new Error('Expressão com elemento inválido');
+            }
+            while(ops.length){ const top = ops.pop(); if(top=='('||top==')') throw new Error('Expressão inválida'); out.push(top); }
+            return out;
+        }
+
+        // Monta árvore em forma de nós JS simples e avalia
+        function evalRPN(rpn){
+            const stack = [];
+            for(const token of rpn){
+                if(isNumber(token)) stack.push({type:'num',v:Number(token)});
+                else if(isItem(token)) stack.push({type:'num',v:CARDAPIO[token.toUpperCase()]});
+                else if(isOperator(token)){
+                    if(stack.length<2) throw new Error('Expressão inválida');
+                    const b = stack.pop(); const a = stack.pop();
+                    let v;
+                    switch(token){
+                        case '+': v = a.v + b.v; break;
+                        case '-': v = a.v - b.v; break;
+                        case '*': v = a.v * b.v; break;
+                        case '/': v = a.v / b.v; break;
+                        default: throw new Error('Expressão com elemento inválido');
+                    }
+                    stack.push({type:'num',v:v});
+                } else throw new Error('Expressão com elemento inválido');
+            }
+            if(stack.length!==1) throw new Error('Expressão inválida');
+            return stack[0].v;
+        }
+
+        function interpretar(){
+            const raw = document.getElementById('expr').value.trim();
+            if(!raw){ document.getElementById('mensagem').textContent='Digite uma expressão'; return; }
+            const norm = normalize(raw);
+            const tokens = norm.split(' ');
+            steps('Tokens: ' + JSON.stringify(tokens));
+            try{
+                const rpn = toRPN(tokens);
+                steps(steps().toString());
+                log('RPN: ' + JSON.stringify(rpn));
+                const res = evalRPN(rpn);
+                document.getElementById('resultado').textContent = Number.isFinite(res) ? res : 'NaN';
+                document.getElementById('mensagem').textContent = 'Interpretado com sucesso';
+            } catch(e){
+                // Garantir mensagens idênticas às usadas no Java
+                const msg = (e.message && (e.message.includes('inválido') || e.message.includes('Inválido'))) ? e.message : e.message || e.toString();
+                if(msg.includes('elemento')) document.getElementById('mensagem').textContent = 'Expressão com elemento inválido';
+                else if(msg.includes('inválida')) document.getElementById('mensagem').textContent = 'Expressão inválida';
+                else document.getElementById('mensagem').textContent = msg;
+                document.getElementById('resultado').textContent = '—';
+                log('Erro: ' + e.message);
+            }
+        }
+
+        // pequena util para steps: getter/setter
+        function steps(val){ if(val===undefined) return document.getElementById('steps').textContent; document.getElementById('steps').textContent = val; }
+
+        // inicializa exemplos
+        document.addEventListener('DOMContentLoaded', ()=>{ document.getElementById('expr').value = '2 * ESPRESSO + 1 * SANDUICHE'; });
+    </script>
+</body>
+</html>
